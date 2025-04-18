@@ -1,0 +1,13 @@
+# Node.js backend
+service-api/node_modules/
+service-api/.env
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+# React frontend
+Dashboard/node_modules/
+Dashboard/build/
+
+# IDE/editor files
+.vscode/
+.DS_Store
