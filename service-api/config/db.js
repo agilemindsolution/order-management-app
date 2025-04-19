@@ -8,5 +8,5 @@ const sql = new Pool({
     rejectUnauthorized: false, // Supabase requires SSL
   },
 });
-//gitToken: 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
+//gitToken
 export default sql;
