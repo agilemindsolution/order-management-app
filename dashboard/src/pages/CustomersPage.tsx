@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+// import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
-import { Customer, deleteCustomer } from '@/store/slices/customerSlice';
+import { Customer, deleteCustomer, fetchCustomers } from '@/store/slices/customerSlice';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Search, Sparkles } from 'lucide-react';
 import CustomerForm from '@/components/customers/CustomerForm';
@@ -10,10 +10,11 @@ import CustomerTable from '@/components/customers/CustomerTable';
 import CustomerDetail from '@/components/customers/CustomerDetail';
 import { toast } from 'sonner';
 import { GridBackground } from '@/components/ui/grid-background';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 const CustomersPage = () => {
-  const dispatch = useDispatch();
-  const { customers } = useSelector((state: RootState) => state.customers);
+  const dispatch = useAppDispatch();
+  const { customers } = useAppSelector((state: RootState) => state.customers);
   
   const [showForm, setShowForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
@@ -27,6 +28,10 @@ const CustomersPage = () => {
     customer.phone.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  useEffect(() => {
+    dispatch(fetchCustomers());
+  }, [dispatch]);
+
   const handleAddCustomer = () => {
     setEditingCustomer(null);
     setShowForm(true);
@@ -37,11 +42,33 @@ const CustomersPage = () => {
     setShowForm(true);
   };
 
-  const handleDeleteCustomer = (id: string) => {
-    // Check if customer is referenced in any orders
-    dispatch(deleteCustomer(id));
-    toast.success('Customer deleted successfully');
-  };
+  // const handleFetchCustomers = () => {
+  //   dispatch(fetchCustomers());
+  // };
+  // const filteredCustomers = () => {
+  //   dispatch(fetchCustomers());
+  //   toast.success('Customer loaded successfully');
+  // };
+
+
+  // const handleDeleteCustomer = (id: string) => {
+  //   // Check if customer is referenced in any orders
+  //   dispatch(deleteCustomer(id));
+  //   toast.success('Customer deleted successfully');
+  // };
+
+  // Handle delete (if updating an existing customer)
+     const handleDeleteCustomer = async (id: any) => {
+      if (id) {
+        try {
+          await dispatch(deleteCustomer(id)).unwrap(); // Unwrap to get actual value or error
+          toast.success('Customer deleted successfully');
+          // onClose();
+        } catch (error) {
+          toast.error('Failed to delete customer. Please try again.');
+        }
+      }
+    };
 
   const handleViewCustomer = (customer: Customer) => {
     setViewingCustomer(customer);

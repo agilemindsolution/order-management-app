@@ -62,7 +62,7 @@ const Dashboard = () => {
           borderColor="border-indigo-700/30"
           highlight="bg-indigo-500"
           path="/customers"
-          trend={+2.5}
+          trend={+2.585}
         />
         <StatCard
           title="Total Products"

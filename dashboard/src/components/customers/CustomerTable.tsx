@@ -28,11 +28,13 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
       <table className="oms-table hidden md:table">
         <thead>
           <tr>
-            <th>ID</th>
+            <th>#</th>
             <th>Name</th>
+            <th>Contact Person</th>
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
+            <th>City</th>
             <th className="text-right">Actions</th>
           </tr>
         </thead>
@@ -42,9 +44,11 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
               <tr key={customer.id}>
                 <td className="font-medium">{customer.id}</td>
                 <td>{customer.name}</td>
+                <td>{customer.contact_person}</td>
                 <td>{customer.email}</td>
                 <td>{customer.phone}</td>
                 <td className="max-w-xs truncate">{customer.address}</td>
+                <td>{customer.city}</td>
                 <td className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger className="p-1.5 rounded-md hover:bg-blue-900/20 transition-colors">
@@ -89,7 +93,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-medium text-lg text-gray-100">{customer.name}</h3>
-                  <p className="text-sm text-blue-400 mt-1">{customer.id}</p>
+                  {/* <p className="text-sm text-blue-400 mt-1">{customer.id}</p> */}
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="p-1.5 rounded-md hover:bg-blue-900/20 transition-colors">
@@ -115,9 +119,11 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                 </DropdownMenu>
               </div>
               <div className="mt-3 space-y-1">
-                <p className="text-sm"><span className="font-medium text-gray-400">Email:</span> <span className="text-gray-300">{customer.email}</span></p>
+                <p className="text-sm"><span className="font-medium text-gray-400">Contact Person:</span> <span className="text-gray-300">{customer.contact_person}</span></p>
+                <p className="text-sm"><span className="font-medium text-gray-400">Email is this:</span> <span className="text-gray-300">{customer.email}</span></p>
                 <p className="text-sm"><span className="font-medium text-gray-400">Phone:</span> <span className="text-gray-300">{customer.phone}</span></p>
                 <p className="text-sm"><span className="font-medium text-gray-400">Address:</span> <span className="text-gray-300">{customer.address}</span></p>
+                <p className="text-sm"><span className="font-medium text-gray-400">City:</span> <span className="text-gray-300">{customer.city}</span></p>
               </div>
             </div>
           ))
