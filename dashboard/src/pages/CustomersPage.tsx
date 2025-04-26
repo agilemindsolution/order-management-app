@@ -1,36 +1,57 @@
 
-import React, { useState, useEffect } from 'react';
+import React, {useRef, useState, useEffect, useCallback } from 'react';
 // import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { Customer, deleteCustomer, fetchCustomers } from '@/store/slices/customerSlice';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Search, Sparkles } from 'lucide-react';
+import { PlusCircle, Search, Sparkles, RefreshCw, Loader2 } from 'lucide-react';
 import CustomerForm from '@/components/customers/CustomerForm';
 import CustomerTable from '@/components/customers/CustomerTable';
 import CustomerDetail from '@/components/customers/CustomerDetail';
 import { toast } from 'sonner';
 import { GridBackground } from '@/components/ui/grid-background';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { safeIncludes } from '@/lib/utils';
+import { CUSTOMER_CONFIG } from '@/config/CustomerConfig';
 
 const CustomersPage = () => {
   const dispatch = useAppDispatch();
-  const { customers } = useAppSelector((state: RootState) => state.customers);
-  
+  const hasFetched = useRef(false); // 🔥 Create a ref to track if already fetched
+
+  const { customers, isLoading } = useAppSelector((state: RootState) => state.customers);
   const [showForm, setShowForm] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   // Filter customers based on search term
-  const filteredCustomers = customers.filter(customer => 
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCustomers = customers.filter((customer: any) =>
+    CUSTOMER_CONFIG.searchFields.some((field: any) => safeIncludes(customer?.[field], searchTerm))
   );
-
-  useEffect(() => {
-    dispatch(fetchCustomers());
+  // 🔥 make loadCustomers reusable
+  const loadCustomers = useCallback(async () => {
+    try {
+      setIsRefreshing(true); 
+      await Promise.all([
+        dispatch(fetchCustomers()).unwrap(),
+        new Promise((resolve) => setTimeout(resolve, 400)) // minimum spinner time
+      ]);
+      toast.success('Customers loaded successfully');
+    } catch (error) {
+      toast.error('Failed to load customers. Please try again.');
+    }
+    finally {
+      setIsRefreshing(false); // 🔥 stop spinner
+    }
   }, [dispatch]);
+   
+  useEffect(() => {
+    if (!hasFetched.current) {
+      loadCustomers();
+      hasFetched.current = true;
+    }
+  }, [loadCustomers]);
 
   const handleAddCustomer = () => {
     setEditingCustomer(null);
@@ -85,7 +106,7 @@ const CustomersPage = () => {
 
   return (
     <div className="relative animate-fade-in">
-      <GridBackground className="absolute inset-0 z-0 opacity-10" />
+    <GridBackground className="absolute inset-0 z-0 opacity-10" />
       
       <div className="relative z-10 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -96,15 +117,29 @@ const CustomersPage = () => {
             </h1>
             <p className="text-sm sm:text-base text-blue-300/80">Manage your customer database</p>
           </div>
-          <Button 
-            onClick={handleAddCustomer} 
-            className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 transition-colors shadow-md shadow-blue-950/30"
-          >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add Customer
-          </Button>
+          <div className="flex items-center mt-4 md:mt-0 space-x-2">
+            <Button 
+              onClick={handleAddCustomer} 
+              className="bg-blue-600 hover:bg-blue-700 transition-colors shadow-md shadow-blue-950/30"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Customer
+            </Button>
+            <Button
+              onClick={loadCustomers}
+              disabled={isLoading || isRefreshing}
+              variant="outline"
+              className="border-blue-600 text-blue-400 hover:text-white hover:bg-blue-700 shadow-md shadow-blue-950/30"
+            >
+            {isRefreshing ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4 mr-2" />
+              )}
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          </div>
         </div>
-
         <div className="modern-card animate-slide-in">
           <div className="p-3 md:p-4 border-b border-blue-900/30">
             <div className="relative">
@@ -127,6 +162,7 @@ const CustomersPage = () => {
               onEdit={handleEditCustomer}
               onDelete={handleDeleteCustomer}
               onView={handleViewCustomer}
+              isLoading={isLoading}
             />
           </div>
         </div>

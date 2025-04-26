@@ -32,3 +32,14 @@ export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
 }
+
+export function safeIncludes(source: any, search: string): boolean {
+  if (!search) return true; // If search is empty, match everything
+  if (typeof source !== 'string' && typeof source !== 'number') return false;
+
+  const normalizedSource = String(source).toLowerCase().trim();
+  const normalizedSearch = search.toLowerCase().trim();
+
+  return normalizedSource.includes(normalizedSearch);
+}
+

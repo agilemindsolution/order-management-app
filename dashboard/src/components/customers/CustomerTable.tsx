@@ -8,19 +8,22 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
+import { Loader } from '@/components/common/Loader';
 
 interface CustomerTableProps {
   customers: Customer[];
   onEdit: (customer: Customer) => void;
   onDelete: (id: string) => void;
   onView: (customer: Customer) => void;
+  isLoading: boolean;
 }
 
 const CustomerTable: React.FC<CustomerTableProps> = ({ 
   customers,
   onEdit,
   onDelete,
-  onView
+  onView,
+  isLoading 
 }) => {
   return (
     <>
@@ -39,7 +42,19 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {customers.length > 0 ? (
+          {isLoading ? (
+          <tr>
+            <td colSpan={8} className="text-center py-10">
+              <Loader /> {/* Show loader inside table */}
+            </td>
+          </tr>
+        ) :  customers.length === 0 ? (
+          <tr>
+            <td colSpan={8} className="text-center py-6 text-gray-400">
+              No customers found
+            </td>
+          </tr>
+        ) : (
             customers.map((customer) => (
               <tr key={customer.id}>
                 <td className="font-medium">{customer.id}</td>
@@ -75,12 +90,6 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
                 </td>
               </tr>
             ))
-          ) : (
-            <tr>
-              <td colSpan={6} className="text-center py-6 text-gray-400">
-                No customers found
-              </td>
-            </tr>
           )}
         </tbody>
       </table>

@@ -12,7 +12,7 @@ app.use(express.json());
 
 registerRoutes(app);
 
-app.use(notFound);
+// app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

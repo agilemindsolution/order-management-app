@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 // import { useDispatch } from 'react-redux';
 import { X } from 'lucide-react';
-import { Customer, addCustomer, updateCustomer } from '@/store/slices/customerSlice';
+import { Customer, fetchCustomers, addCustomer, updateCustomer } from '@/store/slices/customerSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { Spinner } from '@/components/common/Loader';
 
 interface CustomerFormProps {
   customer?: Customer | null;
@@ -14,7 +15,6 @@ interface CustomerFormProps {
 
 const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onClose }) => {
   const dispatch = useAppDispatch();
-  
   const [formData, setFormData] = useState<Partial<Customer>>({
     id: customer?.id || '',
     name: customer?.name || '',
@@ -33,6 +33,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onClose }) => {
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   // Initialize form with customer data if editing
   useEffect(() => {
@@ -117,6 +119,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onClose }) => {
     console.log("Customer data:", customerData);
     
     try {
+      setLoading(true);
+      setIsClosing(true);
       if (customer) {
         // Update existing customer
         await dispatch(updateCustomer(customerData)).unwrap(); // Unwrap to get actual value or error
@@ -126,11 +130,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onClose }) => {
         await dispatch(addCustomer(customerData)).unwrap(); // Unwrap to get actual value or error
         toast.success('Customer created successfully');
       }
-
+      dispatch(fetchCustomers());
       onClose();
+      setIsClosing(false);
     } catch (error) {
       // Handle failure
       toast.error('Failed to update/create customer. Please try again.');
+    }
+    finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -147,7 +155,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onClose }) => {
             <X className="w-6 h-6" />
           </button>
         </div>
-        
         <form onSubmit={handleSubmit} className="p-6 bg-gray-900 text-gray-100">
             <div className="mb-2 grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* <div>
@@ -380,13 +387,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onClose }) => {
               )} */}
             </div>
           </div>   
-                 
+                
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-700">
             <Button type="button" variant="outline" onClick={onClose} className="border-blue-500 text-blue-400 hover:bg-blue-900 hover:text-blue-200">
               Cancel
             </Button>
             <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-              {customer ? 'Update Customer' : 'Create Customer'}
+              {isClosing ? <Spinner /> : '' } {( customer ? 'Update Customer' : 'Create Customer' )}
             </Button>
           </div>
         </form>
