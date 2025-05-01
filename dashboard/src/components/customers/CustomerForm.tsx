@@ -277,7 +277,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onClose }) => {
                   name="website"
                   value={formData.website || ''}
                   onChange={handleChange}
-                  placeholder="PAN Number"
+                  placeholder="Website Name"
                   className={`bg-gray-800 border ${errors.website ? 'border-red-500' : 'border-gray-700'} text-white focus:border-blue-500 focus:ring-blue-500`}
                 />
                 {/* {errors.website && (

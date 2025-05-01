@@ -45,7 +45,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
           {isLoading ? (
           <tr>
             <td colSpan={8} className="text-center py-10">
-              <Loader /> {/* Show loader inside table */}
+              <Loader />
             </td>
           </tr>
         ) :  customers.length === 0 ? (
@@ -55,9 +55,9 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
             </td>
           </tr>
         ) : (
-            customers.map((customer) => (
+            customers.map((customer, index) => (
               <tr key={customer.id}>
-                <td className="font-medium">{customer.id}</td>
+                <td className="font-medium">{index+1}</td>
                 <td>{customer.name}</td>
                 <td>{customer.contact_person}</td>
                 <td>{customer.email}</td>

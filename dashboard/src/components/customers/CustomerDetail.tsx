@@ -50,7 +50,7 @@ const CustomerDetail: React.FC<CustomerDetailProps> = ({
               </div>
               <div>
                 <h3 className="text-xl font-bold">{customer.name}</h3>
-                <p className="text-sm text-gray-400">ID: {customer.id}</p>
+                {/* <p className="text-sm text-gray-400">ID: {customer.id}</p> */}
               </div>
             </div>
           </div>

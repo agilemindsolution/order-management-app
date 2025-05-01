@@ -51,7 +51,7 @@ export const updateCustomer = createAsyncThunk(
   'customers/updateCustomer',
   async (customer: Customer, { rejectWithValue }) => {
     try {
-      const response = await apiService.post(API_ROUTES.clientById(0), customer);
+      const response = await apiService.put(API_ROUTES.clientById(customer.id), customer);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update customer');
@@ -63,7 +63,7 @@ export const deleteCustomer = createAsyncThunk(
   'customers/deleteCustomer',
   async (id: string, { rejectWithValue }) => {
     try {
-      await apiService.delete(API_ROUTES.clientById(0));
+      await apiService.delete(API_ROUTES.clientById(id));
       return id;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to delete customer');
