@@ -19,31 +19,31 @@ const Sidebar = ({ isOpen, toggleSidebar, className }: SidebarProps) => {
     {
       title: 'Dashboard',
       icon: <Home className="w-5 h-5" />,
-      path: '/',
+      path: '/dashboard',
       active: currentPath === '/'
     },
     {
       title: 'Customers',
       icon: <Users className="w-5 h-5" />,
-      path: '/customers',
+      path: '/dashboard/customers',
       active: currentPath.includes('/customers')
     },
     {
       title: 'Products',
       icon: <Package className="w-5 h-5" />,
-      path: '/products',
+      path: '/dashboard/products',
       active: currentPath.includes('/products')
     },
     {
       title: 'Orders',
       icon: <ShoppingCart className="w-5 h-5" />,
-      path: '/orders',
+      path: '/dashboard/orders',
       active: currentPath.includes('/orders')
     },
     {
       title: 'Analytics',
       icon: <BarChart className="w-5 h-5" />,
-      path: '/analytics',
+      path: '/dashboard/analytics',
       active: currentPath.includes('/analytics')
     }
   ];

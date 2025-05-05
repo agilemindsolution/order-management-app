@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { Bell, User, Settings, Menu,   Search } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '@/store/slices/authSlice'; 
+import { useNavigate } from 'react-router-dom';
+import { RootState } from '@/store';
 
 interface HeaderProps {
   isMobile: boolean;
@@ -7,8 +11,16 @@ interface HeaderProps {
 }
 
 const Header = ({ isMobile, toggleSidebar }: HeaderProps) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const displayName = user?.name 
+    || user?.email?.split('@')[0] 
+    || 'User';
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
@@ -19,6 +31,13 @@ const Header = ({ isMobile, toggleSidebar }: HeaderProps) => {
     setShowUserMenu(!showUserMenu);
     if (showNotifications) setShowNotifications(false);
   };
+  
+  const handleLogout = () => {
+    setShowUserMenu(false);
+    dispatch(logout());
+    navigate('/login');
+  }
+
 
   return (
     <header className="bg-[#0f172a] h-16 flex items-center justify-between px-4 md:px-6 sticky top-0 z-40">
@@ -66,12 +85,14 @@ const Header = ({ isMobile, toggleSidebar }: HeaderProps) => {
         </button>
 
         <div className="relative flex items-center">
-          <span className="text-gray-300 mr-2 hidden md:block">Admin User</span>
+          <span className="text-gray-300 mr-3 hidden md:block">
+          {displayName}
+            </span>
           <button 
-            className="flex items-center"
+            className="flex items-center cursor-pointer"
             onClick={toggleUserMenu}
           >
-            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-600 flex items-center justify-center text-white">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-600 flex items-center justify-center text-white ">
               <User className="w-4 h-4 md:w-5 md:h-5" />
             </div>
           </button>
@@ -82,7 +103,7 @@ const Header = ({ isMobile, toggleSidebar }: HeaderProps) => {
               <a href="#settings" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800">Settings</a>
               <a href="#help" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800">Help Center</a>
               <div className="border-t border-gray-800 my-1"></div>
-              <a href="#logout" className="block px-4 py-2 text-sm text-red-400 hover:bg-gray-800">Sign out</a>
+              <a onClick={handleLogout} className="block px-4 py-2 text-sm text-red-400 hover:bg-gray-800 cursor-pointer">Sign out</a>
             </div>
           )}
         </div>

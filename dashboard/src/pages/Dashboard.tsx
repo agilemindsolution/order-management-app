@@ -51,7 +51,7 @@ const Dashboard = () => {
           color="from-blue-600/20 to-blue-800/20"
           borderColor="border-blue-700/30"
           highlight="bg-blue-500"
-          path="/orders"
+          path="/dashboard/orders"
           trend={+5.2}
         />
         <StatCard
@@ -61,7 +61,7 @@ const Dashboard = () => {
           color="from-indigo-600/20 to-indigo-800/20"
           borderColor="border-indigo-700/30"
           highlight="bg-indigo-500"
-          path="/customers"
+          path="/dashboard/customers"
           trend={+2.585}
         />
         <StatCard
@@ -71,7 +71,7 @@ const Dashboard = () => {
           color="from-purple-600/20 to-purple-800/20"
           borderColor="border-purple-700/30"
           highlight="bg-purple-500"
-          path="/products"
+          path="/dashboard/products"
           trend={+1.8}
         />
         <StatCard
@@ -81,7 +81,7 @@ const Dashboard = () => {
           color="from-cyan-600/20 to-blue-700/20"
           borderColor="border-cyan-700/30"
           highlight="bg-cyan-500"
-          path="/orders"
+          path="/dashboard/orders"
           trend={+12.5}
         />
       </div>
@@ -140,7 +140,7 @@ const Dashboard = () => {
                   {orders.slice(0, 5).map((order) => (
                     <tr key={order.id} className="hover:bg-blue-900/10">
                       <td className="text-sm font-medium text-gray-200 truncate max-w-[80px] md:max-w-none">
-                        <Link to="/orders" className="hover:text-blue-400 transition-colors">
+                        <Link to="/dashboard/orders" className="hover:text-blue-400 transition-colors">
                           {order.id}
                         </Link>
                       </td>
@@ -159,7 +159,7 @@ const Dashboard = () => {
               </table>
             </div>
             <div className="mt-2 text-right p-4">
-              <Link to="/orders" className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors inline-flex items-center">
+              <Link to="/dashboard/orders" className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors inline-flex items-center">
                 View All Orders 
                 <ArrowUpRight className="w-3.5 h-3.5 ml-1 rotate-45" />
               </Link>
