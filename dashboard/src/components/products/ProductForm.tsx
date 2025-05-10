@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import { useDispatch } from 'react-redux';
-import { X } from 'lucide-react';
+import { X, Trash2, Star, StarOff } from 'lucide-react';
 import { Product, addProduct, updateProduct } from '@/store/slices/productSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,247 +13,205 @@ interface ProductFormProps {
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
   const dispatch = useDispatch();
-  
+
   const [formData, setFormData] = useState<Partial<Product>>({
-    id: '',
-    name: '',
+    product_id: product?.product_id || '',
+    product_name: '',
+    product_code: '',
+    category: '',
+    sub_category: '',
+    brand: '',
+    packaging_size: '',
+    quality: '',
+    unit_of_measurement: '',
+    available_quantity: 0,
+    min_order_quantity: 1,
+    price_per_unit: 0,
     description: '',
-    price: 0,
-    stock: 0,
-    category: ''
+    images: []
   });
-  
+
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Initialize form with product data if editing
+  // Set default form data on mount/edit
   useEffect(() => {
     if (product) {
       setFormData(product);
     } else {
-       
-      const newProductId = `PROD-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-      setFormData(prev => ({ ...prev, id: newProductId }));
+      const newProductId = `PROD-${Math.floor(Math.random() * 10000)
+        .toString()
+        .padStart(4, '0')}`;
+      setFormData(prev => ({ ...prev, product_id: newProductId }));
     }
   }, [product]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
-    if (name === 'price' || name === 'stock') {
-      setFormData({ ...formData, [name]: Number(value) });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
- 
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: ['available_quantity', 'min_order_quantity', 'price_per_unit'].includes(name)
+        ? Number(value)
+        : value
+    }));
+
     if (errors[name]) {
-      setErrors({ ...errors, [name]: '' });
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setImageFiles(prev => [...prev, ...Array.from(files)]);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const togglePrimary = (index: number) => {
+    setImageFiles(prev =>
+      prev.map((file, i) => {
+        const customFile: any = file;
+        customFile.isPrimary = i === index;
+        return customFile;
+      })
+    );
   };
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
-    if (!formData.name || formData.name.trim() === '') {
-      newErrors.name = 'Name is required';
-    }
-    
-    if (!formData.description || formData.description.trim() === '') {
-      newErrors.description = 'Description is required';
-    }
-    
-    if (!formData.category || formData.category.trim() === '') {
-      newErrors.category = 'Category is required';
-    }
-    
-    if (formData.price === undefined || formData.price < 0) {
-      newErrors.price = 'Price must be a valid number greater than or equal to 0';
-    }
-    
-    if (formData.stock === undefined || formData.stock < 0 || !Number.isInteger(formData.stock)) {
-      newErrors.stock = 'Stock must be a valid integer greater than or equal to 0';
-    }
-    
+    if (!formData.product_name?.trim()) newErrors.product_name = 'Product name is required';
+    if (!formData.category?.trim()) newErrors.category = 'Category is required';
+    if (formData.price_per_unit === undefined || formData.price_per_unit < 0)
+      newErrors.price_per_unit = 'Valid price required';
+    if (formData.available_quantity === undefined || formData.available_quantity < 0)
+      newErrors.available_quantity = 'Quantity required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) {
-      toast.error('Please fix the errors in the form');
+      toast.error('Please fix the errors');
       return;
     }
-    
-    const productData = formData as Product;
-    
-    if (product) {
-      // Update existing product
-      dispatch(updateProduct(productData));
-      toast.success('Product updated successfully');
-    } else {
-      // Add new product
-      dispatch(addProduct(productData));
-      toast.success('Product created successfully');
-    }
-    
-    onClose();
-  };
 
-  // List of common product categories
-  const categories = [
-    'Electronics',
-    'Clothing',
-    'Books',
-    'Home & Kitchen',
-    'Toys & Games',
-    'Sports & Outdoors',
-    'Beauty & Personal Care',
-    'Health & Wellness',
-    'Food & Beverage',
-    'Office Supplies',
-    'Automotive',
-    'Pet Supplies',
-    'Other'
-  ];
+    const isUpdate = !!product;
+    const form = new FormData();
+
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value !== undefined && key !== 'images') {
+        form.append(key, String(value));
+      }
+    });
+
+    imageFiles.forEach((file, idx) => {
+      form.append(`images`, file);
+      form.append(`is_primary`, idx === 0 ? 'true' : 'false');
+    });
+
+    try {
+      if (isUpdate) {
+        await dispatch(updateProduct({ id: product?.product_id!, data: form }) as any);
+        toast.success('Product updated successfully');
+      } else {
+        await dispatch(addProduct(form) as any);
+        toast.success('Product created successfully');
+      }
+      onClose();
+    } catch (error: any) {
+      console.error("Error in ProductForm:", error);
+      const errorMessage = error?.message || 'Something went wrong. Please try again.';
+      toast.error(errorMessage);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-gray-900 rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-blue-500">
+      <div className="bg-gray-900 rounded-lg shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-y-auto border border-blue-500">
         <div className="flex items-center justify-between p-6 border-b border-blue-600 bg-gradient-to-r from-blue-800 to-blue-900">
-          <h2 className="text-2xl font-semibold text-white">
-            {product ? 'Edit Product' : 'Add New Product'}
-          </h2>
+          <h2 className="text-2xl font-semibold text-white">{product ? 'Edit' : 'Add'} Product</h2>
           <button onClick={onClose} className="text-gray-300 hover:text-white transition-colors">
             <X className="w-6 h-6" />
           </button>
         </div>
-        
-        <form onSubmit={handleSubmit} className="p-6 bg-gray-900 text-gray-100">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-blue-300 mb-1">
-                Product ID
-              </label>
-              <Input
-                value={formData.id || ''}
-                readOnly
-                className="bg-gray-800 border-gray-700 text-gray-300"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-blue-300 mb-1">
-                Name *
-              </label>
-              <Input
-                name="name"
-                value={formData.name || ''}
-                onChange={handleChange}
-                placeholder="Product name"
-                className={`bg-gray-800 border ${errors.name ? 'border-red-500' : 'border-gray-700'} text-white focus:border-blue-500 focus:ring-blue-500`}
-              />
-              {errors.name && (
-                <p className="text-red-400 text-xs mt-1">{errors.name}</p>
-              )}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-blue-300 mb-1">
-                Description *
-              </label>
-              <textarea
-                name="description"
-                value={formData.description || ''}
-                onChange={handleChange}
-                rows={3}
-                placeholder="Product description"
-                className={`w-full p-2 border rounded-md bg-gray-800 ${
-                  errors.description ? 'border-red-500' : 'border-gray-700'
-                } text-white focus:border-blue-500 focus:ring-blue-500`}
-              />
-              {errors.description && (
-                <p className="text-red-400 text-xs mt-1">{errors.description}</p>
-              )}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-blue-300 mb-1">
-                Category *
-              </label>
-              <select
-                name="category"
-                value={formData.category || ''}
-                onChange={handleChange}
-                className={`w-full p-2 border rounded-md bg-gray-800 ${
-                  errors.category ? 'border-red-500' : 'border-gray-700'
-                } text-white focus:border-blue-500 focus:ring-blue-500`}
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-              {errors.category && (
-                <p className="text-red-400 text-xs mt-1">{errors.category}</p>
-              )}
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  Price * ($)
-                </label>
-                <Input
-                  name="price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price || ''}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  className={`bg-gray-800 border ${errors.price ? 'border-red-500' : 'border-gray-700'} text-white focus:border-blue-500 focus:ring-blue-500`}
-                />
-                {errors.price && (
-                  <p className="text-red-400 text-xs mt-1">{errors.price}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-blue-300 mb-1">
-                  Stock *
-                </label>
-                <Input
-                  name="stock"
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={formData.stock || ''}
-                  onChange={handleChange}
-                  placeholder="0"
-                  className={`bg-gray-800 border ${errors.stock ? 'border-red-500' : 'border-gray-700'} text-white focus:border-blue-500 focus:ring-blue-500`}
-                />
-                {errors.stock && (
-                  <p className="text-red-400 text-xs mt-1">{errors.stock}</p>
-                )}
-              </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-white bg-gray-900">
+          <div className="grid grid-cols-2 gap-4">
+            <InputField name="product_name" label="Product Name *" value={formData.product_name || ''} onChange={handleChange} error={errors.product_name} />
+            <InputField name="product_code" label="Product Code" value={formData.product_code || ''} onChange={handleChange} />
+            <InputField name="category" label="Category *" value={formData.category || ''} onChange={handleChange} error={errors.category} />
+            <InputField name="sub_category" label="Sub Category" value={formData.sub_category || ''} onChange={handleChange} />
+            <InputField name="brand" label="Brand" value={formData.brand || ''} onChange={handleChange} />
+            <InputField name="packaging_size" label="Packaging Size" value={formData.packaging_size || ''} onChange={handleChange} />
+            <InputField name="quality" label="Quality" value={formData.quality || ''} onChange={handleChange} />
+            <InputField name="unit_of_measurement" label="Unit of Measurement" value={formData.unit_of_measurement || ''} onChange={handleChange} />
+            <InputField name="available_quantity" label="Available Quantity *" type="number" value={formData.available_quantity?.toString() || ''} onChange={handleChange} error={errors.available_quantity} />
+            <InputField name="min_order_quantity" label="Min Order Quantity" type="number" value={formData.min_order_quantity?.toString() || ''} onChange={handleChange} />
+            <InputField name="price_per_unit" label="Price per Unit *" type="number" value={formData.price_per_unit?.toString() || ''} onChange={handleChange} error={errors.price_per_unit} />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1 text-blue-300">Description</label>
+            <textarea
+              name="description"
+              rows={3}
+              value={formData.description || ''}
+              onChange={handleChange}
+              className="w-full p-2 border rounded-md bg-gray-800 border-gray-700 text-white focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Product description"
+            />
+          </div>
+
+          {/* Image Uploads */}
+          <div>
+            <label className="block text-sm font-medium text-blue-300 mb-1">Product Images</label>
+            <Input type="file" multiple accept="image/*" onChange={handleImageChange} />
+            <div className="mt-2 grid grid-cols-3 gap-3">
+              {imageFiles.map((file, index) => (
+                <div key={index} className="relative group">
+                  <img src={URL.createObjectURL(file)} alt={`preview-${index}`} className="w-full h-24 object-cover rounded" />
+                  <div className="absolute top-1 right-1 flex gap-1">
+                    <button type="button" onClick={() => togglePrimary(index)} title="Set as Primary">
+                      {(file as any).isPrimary ? <Star className="text-yellow-400" /> : <StarOff className="text-gray-400" />}
+                    </button>
+                    <button type="button" onClick={() => removeImage(index)} title="Remove">
+                      <Trash2 className="text-red-500" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          
-          <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-700">
-            <Button type="button" variant="outline" onClick={onClose} className="border-blue-500 text-blue-400 hover:bg-blue-900 hover:text-blue-200">
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-              {product ? 'Update Product' : 'Create Product'}
-            </Button>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-700">
+            <Button type="button" variant="outline" onClick={onClose} className="border-blue-500 text-blue-400 hover:bg-blue-900 hover:text-blue-200">Cancel</Button>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">{product ? 'Update' : 'Create'}</Button>
           </div>
         </form>
       </div>
     </div>
   );
 };
+
+const InputField = ({ name, label, type = 'text', value, onChange, error }: any) => (
+  <div>
+    <label className="block text-sm font-medium text-blue-300 mb-1">{label}</label>
+    <Input
+      name={name}
+      type={type}
+      value={value}
+      onChange={onChange}
+      className={`bg-gray-800 border ${error ? 'border-red-500' : 'border-gray-700'} text-white focus:border-blue-500 focus:ring-blue-500`}
+    />
+    {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+  </div>
+);
 
 export default ProductForm;

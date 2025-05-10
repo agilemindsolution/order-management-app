@@ -1,7 +1,5 @@
 
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-// import axios from 'axios';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@/api/apiService';
 import { API_ROUTES } from '@/api/apiRoutes';
 

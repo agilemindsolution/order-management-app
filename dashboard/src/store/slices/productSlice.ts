@@ -1,13 +1,28 @@
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import apiService from '@/api/apiService'; 
+import { API_ROUTES } from '@/api/apiRoutes';
 
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+// Interfaces
+export interface ProductImage {
+  image_url: string;
+  is_primary: boolean;
+}
 
 export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
+  product_id: string;
+  product_name: string;
+  product_code?: string;
   category: string;
+  sub_category?: string;
+  brand?: string;
+  packaging_size?: string;
+  quality?: string;
+  unit_of_measurement?: string;
+  available_quantity: number;
+  min_order_quantity?: number;
+  price_per_unit: number;
+  description?: string;
+  images?: ProductImage[];
 }
 
 interface ProductState {
@@ -16,91 +31,130 @@ interface ProductState {
   error: string | null;
 }
 
-// Mock data for products
-const mockProducts: Product[] = [
-  {
-    id: 'PROD-001',
-    name: 'Laptop',
-    description: 'High-performance laptop with 16GB RAM and 512GB SSD',
-    price: 1200,
-    stock: 10,
-    category: 'Electronics'
-  },
-  {
-    id: 'PROD-002',
-    name: 'Smartphone',
-    description: 'Latest smartphone with 128GB storage and dual camera',
-    price: 800,
-    stock: 15,
-    category: 'Electronics'
-  },
-  {
-    id: 'PROD-003',
-    name: 'Headphones',
-    description: 'Noise-cancelling wireless headphones',
-    price: 100,
-    stock: 30,
-    category: 'Audio'
-  },
-  {
-    id: 'PROD-004',
-    name: 'Tablet',
-    description: '10-inch tablet with 64GB storage',
-    price: 500,
-    stock: 8,
-    category: 'Electronics'
-  },
-  {
-    id: 'PROD-005',
-    name: 'Smart Watch',
-    description: 'Fitness tracking smartwatch with heart rate monitor',
-    price: 250,
-    stock: 20,
-    category: 'Wearables'
-  }
-];
-
 const initialState: ProductState = {
-  products: mockProducts,
+  products: [],
   isLoading: false,
-  error: null
+  error: null,
 };
 
+// Reusable handlers
+const handlePending = (state: ProductState) => {
+  state.isLoading = true;
+  state.error = null;
+};
+
+const handleRejected = (state: ProductState, action: PayloadAction<any>) => {
+  state.isLoading = false;
+  state.error = action.payload;
+};
+
+// Thunks
+export const fetchProducts = createAsyncThunk(
+  'products/fetchProducts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiService.get(API_ROUTES.products);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch products');
+    }
+  }
+);
+
+export const addProduct = createAsyncThunk(
+  'products/addProduct',
+  async (formData: FormData, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post(API_ROUTES.products, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to add product');
+    }
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  'products/updateProduct',
+  async ({ id, data }: { id: string; data: FormData }, { rejectWithValue }) => {
+    try {
+      const response = await apiService.put(API_ROUTES.productById(id), data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update product');
+    }
+  }
+);
+
+export const deleteProduct = createAsyncThunk(
+  'products/deleteProduct',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await apiService.delete(API_ROUTES.productById(id));
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete product');
+    }
+  }
+);
+
+// Slice
 const productSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    setProducts: (state, action: PayloadAction<Product[]>) => {
-      state.products = action.payload;
+    clearProductError: (state) => {
+      state.error = null;
     },
-    addProduct: (state, action: PayloadAction<Product>) => {
-      state.products.push(action.payload);
-    },
-    updateProduct: (state, action: PayloadAction<Product>) => {
-      const index = state.products.findIndex(product => product.id === action.payload.id);
-      if (index !== -1) {
-        state.products[index] = action.payload;
-      }
-    },
-    deleteProduct: (state, action: PayloadAction<string>) => {
-      state.products = state.products.filter(product => product.id !== action.payload);
-    },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    }
-  }
+  },
+  extraReducers: builder => {
+    builder
+      // Fetch
+      .addCase(fetchProducts.pending, handlePending)
+      .addCase(fetchProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
+        state.products = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchProducts.rejected, handleRejected)
+
+      // Add
+      .addCase(addProduct.pending, handlePending)
+      .addCase(addProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+        state.products.push(action.payload);
+        state.isLoading = false;
+      })
+      .addCase(addProduct.rejected, handleRejected)
+
+      // Update
+      .addCase(updateProduct.pending, handlePending)
+      .addCase(updateProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+        const index = state.products.findIndex(p => p.product_id === action.payload.product_id);
+        if (index !== -1) {
+          state.products[index] = action.payload;
+        }
+        state.isLoading = false;
+      })
+      .addCase(updateProduct.rejected, handleRejected)
+
+      // Delete
+      .addCase(deleteProduct.pending, handlePending)
+      .addCase(deleteProduct.fulfilled, (state, action: PayloadAction<string>) => {
+        state.products = state.products.filter(p => p.product_id !== action.payload);
+        state.isLoading = false;
+      })
+      .addCase(deleteProduct.rejected, handleRejected);
+  },
 });
 
-export const { 
-  setProducts, 
-  addProduct, 
-  updateProduct, 
-  deleteProduct, 
-  setLoading, 
-  setError 
-} = productSlice.actions;
+// Selectors
+export const selectProducts = (state: { products: ProductState }) => state.products.products;
+export const selectProductLoading = (state: { products: ProductState }) => state.products.isLoading;
+export const selectProductError = (state: { products: ProductState }) => state.products.error;
+
+// Actions
+export const { clearProductError } = productSlice.actions;
 
 export default productSlice.reducer;

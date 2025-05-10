@@ -3,9 +3,9 @@ import axios from './axiosInstance';
 const apiService = {
   get: (url: string, params = {}) => axios.get(url, { params }),
 
-  post: (url: string, data: any) => axios.post(url, data),
+  post: (url: string, data: any, config = {}) => axios.post(url, data, config),
 
-  put: (url: string, data: any) => axios.put(url, data),
+  put: (url: string, data: any, config = {}) => axios.put(url, data, config),
 
   delete: (url: string) => axios.delete(url),
 };
