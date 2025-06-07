@@ -34,8 +34,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           </div>
           
           <div className="text-center mb-6">
-            <h3 className="text-xl font-semibold text-white">{product.name}</h3>
-            <p className="text-sm text-blue-400">{product.id}</p>
+            <h3 className="text-xl font-semibold text-white">{product.product_name}</h3>
+            <p className="text-sm text-blue-400">{product.product_id}</p>
           </div>
           
           <div className="space-y-4">
@@ -51,7 +51,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               <DollarSign className="w-5 h-5 text-blue-400 mt-0.5 mr-3" />
               <div>
                 <p className="text-sm font-medium text-blue-300">Price</p>
-                <p className="text-gray-200">${product.price.toFixed(2)}</p>
+                <p className="text-gray-200">${Number(product.price_per_unit || 0).toFixed(2)}</p>
               </div>
             </div>
             
@@ -59,7 +59,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               <ShoppingBag className="w-5 h-5 text-blue-400 mt-0.5 mr-3" />
               <div>
                 <p className="text-sm font-medium text-blue-300">Stock</p>
-                <p className="text-gray-200">
+                {/* <p className="text-gray-200">
                   <span className={`inline-block px-2 py-1 text-xs rounded-full ${
                     product.stock > 10 
                       ? 'bg-green-900 text-green-200 border border-green-600' 
@@ -69,7 +69,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   }`}>
                     {product.stock} units
                   </span>
-                </p>
+                </p> */}
               </div>
             </div>
             

@@ -128,7 +128,7 @@ import {
   deleteProductImageById,
 } from '../models/productModel';
 
-const getProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const products = await getAllProducts();
     res.json(products);
@@ -137,7 +137,7 @@ const getProducts = async (req: Request, res: Response, next: NextFunction): Pro
   }
 };
 
-const getSpecificProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getSpecificProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const product = await getProductById(req.params.id);
     const images = await getProductImagesByProductId(req.params.id);
@@ -147,7 +147,7 @@ const getSpecificProduct = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-const createProduct = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+export const createProduct = async (req: any, res: Response, next: NextFunction): Promise<void> => {
   try {
     const product = await insertProduct(req.body);
 
@@ -199,34 +199,106 @@ const createProduct = async (req: any, res: Response, next: NextFunction): Promi
   }
 };
 
-const updateProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const updateProduct = async (req: any, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const product = await updateProductById(req.params.id, req.body);
-    if (req.body.images?.length) {
-      await addProductImages(req.body.images);
+    const productId = req.params.id;
+    const updateData = req.body;
+    
+    const updatedProduct = await updateProductById(productId, updateData);
+
+    if (req.files && req.files.length > 0) {
+      const images = req.files.map((file: Express.Multer.File, idx: number) => {
+        const isPrimary = Array.isArray(req.body.is_primary)
+          ? req.body.is_primary[idx] === 'true'
+          : req.body.is_primary === 'true';  // For single image upload
+        return {
+          product_id: productId,
+          image_url: `/uploads/products/${file.filename}`,
+          is_primary: isPrimary
+        };
+      });
+      await addProductImages(images);
     }
-    res.json(product);
+
+    res.status(200).json(updatedProduct);
   } catch (err) {
     next(err);
   }
 };
 
-const deleteProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
+// const updateProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//   try {
+//     const product = await updateProductById(req.params.id, req.body);
+//     if (req.body.images?.length) {
+//       await addProductImages(req.body.images);
+//     }
+//     res.json(product);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
+export const deleteProduct = async (req: any, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await deleteProductById(req.params.id);
+    const productId = req.params.id;
+
+    // Fetch all image records for the product
+    const images = await getProductImagesByProductId(productId);
+
+    // Use the same deleteProductImage logic for each image
+    for (const image of images) {
+      req.params.image = image;  // Reuse the same parameter for consistency
+      await deleteProductImage(req, res, next);
+    }
+
+    // Finally, delete the product itself
+    await deleteProductById(productId);
     res.status(204).end();
   } catch (err) {
     next(err);
   }
 };
 
-const deleteProductImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+// const deleteProduct = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//   try {
+//     await deleteProductById(req.params.id);
+//     res.status(204).end();
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
+export const deleteProductImage = async (req: any, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await deleteProductImageById(req.params.imageId);
+    const image = req.params.image;
+    const imageId = image.image_id;
+
+    // 1. Fetch the image record to get the file path
+    // const image = await getProductImageById(imageId);
+    // if (!image) {
+    //   return next(createError(404, 'Image not found'));
+    // }
+
+    // 2. Remove the physical file
+    const filePath = path.join(__dirname, '../../uploads', image.image_url.replace('/uploads/', ''));
+    fs.unlink(filePath, (err) => {
+      if (err) console.error(`Failed to delete image file: ${filePath}`, err);
+    });
+
+    // 3. Remove the image from the database
+    await deleteProductImageById(imageId);
+
     res.status(204).end();
   } catch (err) {
     next(err);
   }
 };
-
-export { getProducts, getSpecificProduct, createProduct, updateProduct, deleteProduct, deleteProductImage };
+// const deleteProductImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//   try {
+//     await deleteProductImageById(req.params.imageId);
+//     res.status(204).end();
+//   } catch (err) {
+//     next(err);
+//   }
+// };

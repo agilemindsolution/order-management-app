@@ -116,7 +116,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onClose }) => {
     }
     
     const customerData = formData as Customer;
-    console.log("Customer data:", customerData);
     
     try {
       setLoading(true);

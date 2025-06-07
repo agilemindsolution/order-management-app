@@ -8,19 +8,22 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
+import { Loader } from '@/components/common/Loader';
 
 interface ProductTableProps {
   products: Product[];
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
   onView: (product: Product) => void;
+  isLoading: boolean;
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({ 
   products,
   onEdit,
   onDelete,
-  onView
+  onView,
+  isLoading
 }) => {
   return (
     <>
@@ -31,30 +34,34 @@ const ProductTable: React.FC<ProductTableProps> = ({
             <th>ID</th>
             <th>Name</th>
             <th>Category</th>
+            <th>Sub Category</th>
             <th>Price</th>
-            <th>Stock</th>
+            {/* <th>Stock</th> */}
             <th className="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {products.length > 0 ? (
-            products.map((product) => (
-              <tr key={product.id}>
-                <td className="font-medium">{product.id}</td>
-                <td>{product.name}</td>
+          {isLoading ? (
+            <tr>
+              <td colSpan={6} className="text-center py-10">
+                <Loader />
+              </td>
+            </tr>
+          ) : products.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="text-center py-6 text-gray-400">
+                No products found
+              </td>
+            </tr>
+          ) : (
+            products.map((product, index) => (
+              <tr key={product.product_id}>
+                <td className="font-medium">{index + 1}</td>
+                <td>{product.product_name}</td>
                 <td>{product.category}</td>
-                <td>${product.price.toFixed(2)}</td>
-                <td>
-                  <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                    product.stock > 10 
-                      ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                      : product.stock > 0 
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
-                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                  }`}>
-                    {product.stock}
-                  </span>
-                </td>
+                <td>{product.sub_category}</td>
+                <td>${Number(product.price_per_unit || 0).toFixed(2)}</td>
+                {/* <td>{product.stock}</td> */}
                 <td className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger className="p-1.5 rounded-md hover:bg-blue-900/20 transition-colors">
@@ -69,10 +76,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => onDelete(product.id)}
-                        className="text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-900/20 focus:bg-red-900/20"
-                      >
+                      <DropdownMenuItem onClick={() => onDelete(product.product_id)} className="text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-900/20 focus:bg-red-900/20">
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </DropdownMenuItem>
@@ -81,12 +85,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 </td>
               </tr>
             ))
-          ) : (
-            <tr>
-              <td colSpan={6} className="text-center py-6 text-gray-400">
-                No products found
-              </td>
-            </tr>
           )}
         </tbody>
       </table>
@@ -95,11 +93,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
       <div className="grid grid-cols-1 gap-4 p-4 md:hidden">
         {products.length > 0 ? (
           products.map((product) => (
-            <div key={product.id} className="modern-card p-4">
+            <div key={product.product_id} className="modern-card p-4">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-medium text-lg text-gray-100">{product.name}</h3>
-                  <p className="text-sm text-blue-400 mt-1">{product.id}</p>
+                  <h3 className="font-medium text-lg text-gray-100">{product.product_name}</h3>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="p-1.5 rounded-md hover:bg-blue-900/20 transition-colors">
@@ -114,37 +111,18 @@ const ProductTable: React.FC<ProductTableProps> = ({
                       <Edit className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => onDelete(product.id)}
-                      className="text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-900/20 focus:bg-red-900/20"
-                    >
+                    <DropdownMenuItem onClick={() => onDelete(product.product_id)} className="text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-900/20 focus:bg-red-900/20">
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div className="mt-3 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-400">Category:</span>
-                  <span className="text-sm text-gray-300">{product.category}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-400">Price:</span>
-                  <span className="text-sm text-gray-300">${product.price.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-400">Stock:</span>
-                  <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${
-                    product.stock > 10 
-                      ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                      : product.stock > 0 
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
-                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                  }`}>
-                    {product.stock}
-                  </span>
-                </div>
+              <div className="mt-3 space-y-1">
+                <p className="text-sm"><span className="font-medium text-gray-400">Category:</span> <span className="text-gray-300">{product.category}</span></p>
+                <p className="text-sm"><span className="font-medium text-gray-400">Sub Category:</span> <span className="text-gray-300">{product.sub_category}</span></p>
+                <p className="text-sm"><span className="font-medium text-gray-400">Price:</span> <span className="text-gray-300">${Number(product.price_per_unit || 0).toFixed(2)}</span></p>
+                {/* <p className="text-sm"><span className="font-medium text-gray-400">Stock:</span> <span className="text-gray-300">{product.stock}</span></p> */}
               </div>
             </div>
           ))

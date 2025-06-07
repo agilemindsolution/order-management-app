@@ -1,10 +1,11 @@
 import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
-import { useDispatch } from 'react-redux';
 import { X, Trash2, Star, StarOff } from 'lucide-react';
-import { Product, addProduct, updateProduct } from '@/store/slices/productSlice';
+import { Product, addProduct, fetchProducts, updateProduct } from '@/store/slices/productSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAppDispatch } from '@/store/hooks';
 import { toast } from 'sonner';
+import { Spinner } from '@/components/common/Loader';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -12,7 +13,7 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const [formData, setFormData] = useState<Partial<Product>>({
     product_id: product?.product_id || '',
@@ -33,16 +34,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   // Set default form data on mount/edit
   useEffect(() => {
     if (product) {
       setFormData(product);
     } else {
-      const newProductId = `PROD-${Math.floor(Math.random() * 10000)
-        .toString()
-        .padStart(4, '0')}`;
-      setFormData(prev => ({ ...prev, product_id: newProductId }));
+      // const newProductId = `PROD-${Math.floor(Math.random() * 10000)
+      //   .toString()
+      //   .padStart(4, '0')}`;
+      setFormData(prev => ({ ...prev, product_id: '0' }));
     }
   }, [product]);
 
@@ -117,6 +120,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
     });
 
     try {
+      setLoading(true);
+      setIsClosing(true);
       if (isUpdate) {
         await dispatch(updateProduct({ id: product?.product_id!, data: form }) as any);
         toast.success('Product updated successfully');
@@ -124,11 +129,16 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
         await dispatch(addProduct(form) as any);
         toast.success('Product created successfully');
       }
+      dispatch(fetchProducts());
       onClose();
+      setIsClosing(false);
     } catch (error: any) {
       console.error("Error in ProductForm:", error);
       const errorMessage = error?.message || 'Something went wrong. Please try again.';
       toast.error(errorMessage);
+    }
+    finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -192,7 +202,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-gray-700">
             <Button type="button" variant="outline" onClick={onClose} className="border-blue-500 text-blue-400 hover:bg-blue-900 hover:text-blue-200">Cancel</Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">{product ? 'Update' : 'Create'}</Button>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+              {isClosing ? <Spinner /> : '' } {(product ? 'Update Product' : 'Create Product')}</Button>
           </div>
         </form>
       </div>
