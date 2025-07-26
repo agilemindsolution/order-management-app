@@ -3,9 +3,11 @@ import clientRoutes from './clientRoutes';
 import productRoutes from './productRoutes';
 import orderRoutes from './orderRoutes';
 import factoryRoutes from './factoryRoutes';
+import dashboardRoutes from './dashboardRoutes';
 
 export default function registerRoutes(app: Express): void {
   app.use('/api', factoryRoutes);
+  app.use('/api/dashboard', dashboardRoutes);
   app.use('/api/clients', clientRoutes);
   app.use('/api/products', productRoutes);
   app.use('/api/orders', orderRoutes);

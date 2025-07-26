@@ -1,41 +1,55 @@
-
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { RootState } from '@/store';
-import { Link } from 'react-router-dom';
+import { fetchDashboardData } from '@/store/slices/dashboardSlice';
+import {
+  selectDashboardMetrics,
+  selectDashboardStatus,
+  selectDashboardRecentOrders,
+  selectDashboardLoading
+} from '@/store/slices/dashboardSlice';
+import { Sparkles, PieChart, TrendingUp, ArrowUpRight } from 'lucide-react';
+import { GridBackground } from '@/components/ui/grid-background';
+import { BackgroundBeams } from '@/components/ui/background-beams';
+import { Card, CardContent } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { ShoppingCart, Users, Package, CreditCard, PieChart, TrendingUp, ArrowUpRight, Sparkles } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
-import { BackgroundBeams } from "@/components/ui/background-beams";
-import { GridBackground } from "@/components/ui/grid-background";
+import { ShoppingCart, Users, Package, CreditCard } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const orders = useSelector((state: RootState) => state.orders.orders);
-  const customers = useSelector((state: RootState) => state.customers.customers);
-  const products = useSelector((state: RootState) => state.products.products);
+  const dispatch = useAppDispatch();
+  const hasFetched = useRef(false);
 
-  // Calculate statistics
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-  const pendingOrders = orders.filter(order => order.status === 'pending').length;
-  const shippedOrders = orders.filter(order => order.status === 'shipped').length;
-  const deliveredOrders = orders.filter(order => order.status === 'delivered').length;
-  const cancelledOrders = orders.filter(order => order.status === 'cancelled').length;
+  const metrics = useAppSelector(selectDashboardMetrics);
+  const status = useAppSelector(selectDashboardStatus);
+  const recentOrders = useAppSelector(selectDashboardRecentOrders);
+  const isLoading = useAppSelector(selectDashboardLoading);
 
-  // Data for charts
+  const loadDashboardData = useCallback(async () => {
+    dispatch(fetchDashboardData());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!hasFetched.current) {
+      loadDashboardData();
+      hasFetched.current = true;
+    }
+  }, [loadDashboardData]);
+
   const orderStatusData = [
-    { name: 'Pending', value: pendingOrders, color: '#f59e0b' },
-    { name: 'Shipped', value: shippedOrders, color: '#3b82f6' },
-    { name: 'Delivered', value: deliveredOrders, color: '#10b981' },
-    { name: 'Cancelled', value: cancelledOrders, color: '#ef4444' }
+    { name: 'Pending', value: status.pending, color: '#f59e0b' },
+    { name: 'Shipped', value: status.shipped, color: '#3b82f6' },
+    { name: 'Delivered', value: status.delivered, color: '#10b981' },
+    { name: 'Cancelled', value: status.cancelled, color: '#ef4444' },
   ];
 
   return (
     <div className="relative animate-fade-in">
       <GridBackground className="absolute inset-0 z-0 opacity-10" />
-      
+
       <div className="relative z-10 mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-2 flex items-center">
-          Dashboard 
+          Dashboard
           <Sparkles className="w-5 h-5 text-blue-400 ml-2" />
         </h1>
         <p className="text-sm sm:text-base text-blue-300/80">
@@ -44,46 +58,10 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 mb-10">
-        <StatCard
-          title="Total Orders"
-          value={orders.length}
-          icon={<ShoppingCart className="w-6 h-6 md:w-8 md:h-8 text-white" />}
-          color="from-blue-600/20 to-blue-800/20"
-          borderColor="border-blue-700/30"
-          highlight="bg-blue-500"
-          path="/dashboard/orders"
-          trend={+5.2}
-        />
-        <StatCard
-          title="Total Customers"
-          value={customers.length}
-          icon={<Users className="w-6 h-6 md:w-8 md:h-8 text-white" />}
-          color="from-indigo-600/20 to-indigo-800/20"
-          borderColor="border-indigo-700/30"
-          highlight="bg-indigo-500"
-          path="/dashboard/customers"
-          trend={+2.585}
-        />
-        <StatCard
-          title="Total Products"
-          value={products.length}
-          icon={<Package className="w-6 h-6 md:w-8 md:h-8 text-white" />}
-          color="from-purple-600/20 to-purple-800/20"
-          borderColor="border-purple-700/30"
-          highlight="bg-purple-500"
-          path="/dashboard/products"
-          trend={+1.8}
-        />
-        <StatCard
-          title="Total Revenue"
-          value={`$${totalRevenue.toFixed(2)}`}
-          icon={<CreditCard className="w-6 h-6 md:w-8 md:h-8 text-white" />}
-          color="from-cyan-600/20 to-blue-700/20"
-          borderColor="border-cyan-700/30"
-          highlight="bg-cyan-500"
-          path="/dashboard/orders"
-          trend={+12.5}
-        />
+        <StatCard title="Total Orders" value={isLoading ? '—' : metrics.orderCount} icon={<ShoppingCart />} color="from-blue-600/20 to-blue-800/20" borderColor="border-blue-700/30" highlight="bg-blue-500" path="/dashboard/orders" trend={+5.2} />
+        <StatCard title="Total Customers" value={isLoading ? '—' : metrics.clientCount} icon={<Users />} color="from-indigo-600/20 to-indigo-800/20" borderColor="border-indigo-700/30" highlight="bg-indigo-500" path="/dashboard/customers" trend={+2.5} />
+        <StatCard title="Total Products" value={isLoading ? '—' : metrics.productCount} icon={<Package />} color="from-purple-600/20 to-purple-800/20" borderColor="border-purple-700/30" highlight="bg-purple-500" path="/dashboard/products" trend={+1.8} />
+        <StatCard title="Total Revenue" value={isLoading ? '—' : `$${metrics.totalRevenue.toFixed(2)}`} icon={<CreditCard />} color="from-cyan-600/20 to-blue-700/20" borderColor="border-cyan-700/30" highlight="bg-cyan-500" path="/dashboard/orders" trend={+12.5} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
@@ -101,15 +79,7 @@ const Dashboard = () => {
                 <BarChart data={orderStatusData} margin={{ top: 5, right: 5, left: 0, bottom: 20 }}>
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#a3b3bc' }} />
                   <YAxis tick={{ fontSize: 12, fill: '#a3b3bc' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1e293b', 
-                      borderColor: '#334155', 
-                      color: '#fff',
-                      borderRadius: '8px',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                    }} 
-                  />
+                  <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }} />
                   <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -137,21 +107,21 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-blue-900/30">
-                  {orders.slice(0, 5).map((order) => (
-                    <tr key={order.id} className="hover:bg-blue-900/10">
+                  {recentOrders.map((order: any) => (
+                    <tr key={order.order_id} className="hover:bg-blue-900/10">
                       <td className="text-sm font-medium text-gray-200 truncate max-w-[80px] md:max-w-none">
                         <Link to="/dashboard/orders" className="hover:text-blue-400 transition-colors">
-                          {order.id}
+                          {order.order_id}
                         </Link>
                       </td>
                       <td className="text-sm text-gray-300 truncate max-w-[80px] md:max-w-none">
-                        {order.customerName}
+                        {order.client_name}
                       </td>
                       <td className="text-sm">
-                        <StatusBadge status={order.status} />
+                        <StatusBadge status={order.shipping_status} />
                       </td>
                       <td className="text-sm font-medium text-gray-200">
-                        ${order.total.toFixed(2)}
+                        ${Number(order.total_amount)}
                       </td>
                     </tr>
                   ))}
@@ -160,13 +130,14 @@ const Dashboard = () => {
             </div>
             <div className="mt-2 text-right p-4">
               <Link to="/dashboard/orders" className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors inline-flex items-center">
-                View All Orders 
+                View All Orders
                 <ArrowUpRight className="w-3.5 h-3.5 ml-1 rotate-45" />
               </Link>
             </div>
           </CardContent>
         </Card>
       </div>
+
       <BackgroundBeams className="opacity-10" />
     </div>
   );
@@ -175,30 +146,24 @@ const Dashboard = () => {
 const StatusBadge = ({ status }: { status: string }) => {
   const getStatusStyles = () => {
     switch (status) {
-      case 'pending':
-        return 'status-badge status-pending';
-      case 'shipped':
-        return 'status-badge status-shipped';
-      case 'delivered':
-        return 'status-badge status-delivered';
-      case 'cancelled':
-        return 'status-badge status-cancelled';
-      default:
-        return 'status-badge status-pending';
+      case 'pending': return 'status-badge status-pending';
+      case 'shipped': return 'status-badge status-shipped';
+      case 'delivered': return 'status-badge status-delivered';
+      case 'cancelled': return 'status-badge status-cancelled';
+      default: return 'status-badge';
     }
   };
+  const displayText = status
+    ? status.charAt(0).toUpperCase() + status.slice(1)
+    : 'Unknown';
 
-  return (
-    <span className={getStatusStyles()}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
+  return <span className={getStatusStyles()}>{displayText}</span>;
 };
 
-const StatCard = ({ title, value, icon, color, borderColor, highlight, path, trend }: { 
-  title: string; 
-  value: number | string; 
-  icon: React.ReactNode; 
+const StatCard = ({ title, value, icon, color, borderColor, highlight, path, trend }: {
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
   color: string;
   borderColor: string;
   highlight: string;
@@ -218,15 +183,10 @@ const StatCard = ({ title, value, icon, color, borderColor, highlight, path, tre
               <h3 className="text-sm font-medium text-blue-300 mb-1">{title}</h3>
               <p className="text-2xl font-bold text-white">{value}</p>
             </div>
-            <div className={`rounded-lg p-3 bg-gradient-to-br ${color}`}>
-              {icon}
-            </div>
+            <div className={`rounded-lg p-3 bg-gradient-to-br ${color}`}>{icon}</div>
           </div>
           <div className="mt-4 flex items-center text-xs">
-            <span className={`flex items-center gap-1 ${trendColor}`}>
-              {trendIcon}
-              {Math.abs(trend)}%
-            </span>
+            <span className={`flex items-center gap-1 ${trendColor}`}>{trendIcon}{Math.abs(trend)}%</span>
             <span className="ml-2 text-gray-400">vs last month</span>
           </div>
         </div>

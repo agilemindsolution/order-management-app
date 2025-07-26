@@ -29,4 +29,10 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api
     // Orders
     orders: `${BASE_URL}/orders`,
     orderById: (id: any) => `${BASE_URL}/orders/${id}`,
+
+    dashboard: {
+      metrics: `${BASE_URL}/dashboard/metrics`,
+      status: `${BASE_URL}/dashboard/status`,
+      recent: `${BASE_URL}/dashboard/recent`,
+    },
   };
