@@ -42,7 +42,9 @@ export const createOrder = async (orderData: Partial<Order>): Promise<Order> => 
 };
 
 export const getOrders = async (): Promise<Order[]> => {
-  const { rows } = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
+  const { rows } = await pool.query(`SELECT o.*, cm.client_name
+      FROM orders o
+      LEFT JOIN client_master cm ON o.client_id = cm.client_id;`);
   return rows;
 };
 

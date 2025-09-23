@@ -229,11 +229,16 @@ export interface OrderItem {
 }
 
 export interface Order {
-  id: string;
-  customerId: string;
-  customerName: string;
+  order_id: string;
+  client_id: string;
+  client_name: string;
+  order_date: string;
+  expected_delivery_date: string;
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
+  courier_name?: string;
+  tracking_number?: string;
   items: OrderItem[];
-  status: OrderStatus;
+  shipping_status: OrderStatus;
   paymentMode: string;
   paymentType: string;
   addressLine1: string;
@@ -245,9 +250,11 @@ export interface Order {
   mobileNumber: string;
   email: string;
   photo?: string;
-  createdAt: string;
-  updatedAt: string;
-  total: number;
+  created_at: string;
+  created_by: string;
+  updated_at: string;
+  updated_by: string;
+  total_amount: number;
 }
 
 interface OrderState {
@@ -357,7 +364,7 @@ const orderSlice = createSlice({
       // Update
       .addCase(updateOrder.pending, handlePending)
       .addCase(updateOrder.fulfilled, (state, action: PayloadAction<Order>) => {
-        const index = state.orders.findIndex(order => order.id === action.payload.id);
+        const index = state.orders.findIndex(order => order.order_id === action.payload.order_id);
         if (index !== -1) {
           state.orders[index] = action.payload;
         }
@@ -368,7 +375,7 @@ const orderSlice = createSlice({
       // Delete
       .addCase(deleteOrder.pending, handlePending)
       .addCase(deleteOrder.fulfilled, (state, action: PayloadAction<string>) => {
-        state.orders = state.orders.filter(order => order.id !== action.payload);
+        state.orders = state.orders.filter(order => order.order_id !== action.payload);
         state.isLoading = false;
       })
       .addCase(deleteOrder.rejected, handleRejected);

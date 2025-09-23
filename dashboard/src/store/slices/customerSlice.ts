@@ -174,6 +174,9 @@ const customerSlice = createSlice({
   }
 });
 
+export const selectCustomers = (state: { customers: CustomerState }) => state.customers.customers;
+export const selectCustomerLoading = (state: { customers: CustomerState }) => state.customers.isLoading;
+
 export const { 
   // setCustomers, 
   // addCustomer, 
