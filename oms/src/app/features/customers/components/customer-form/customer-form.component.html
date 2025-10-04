@@ -1,0 +1,209 @@
+<div class="bg-gray-900 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+  <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+    <!-- Header -->
+    <div class="flex justify-between items-center p-6 border-b border-blue-900/30">
+      <h2 class="text-xl font-semibold text-white">
+        {{ customer ? 'Edit Customer' : 'Add New Customer' }}
+      </h2>
+      <button
+        type="button"
+        mat-icon-button
+        (click)="onClose()"
+        class="text-gray-400 hover:text-white"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Form Content -->
+    <div class="p-6 space-y-6">
+      <!-- Basic Information -->
+      <div>
+        <h3 class="text-lg font-medium text-white mb-4">Basic Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Customer Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> Customer Name * </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="name" placeholder="Enter customer name" />
+              <mat-error *ngIf="customerForm.get('name')?.hasError('required')">
+                Customer name is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Contact Person -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> Contact Person * </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input
+                matInput
+                formControlName="contact_person"
+                placeholder="Enter contact person name"
+              />
+              <mat-error *ngIf="customerForm.get('contact_person')?.hasError('required')">
+                Contact person is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> Email Address </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                placeholder="Enter email address"
+              />
+              <mat-error *ngIf="customerForm.get('email')?.hasError('email')">
+                Please enter a valid email address
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Phone -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> Phone Number * </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="phone" placeholder="Enter phone number" />
+              <mat-error *ngIf="customerForm.get('phone')?.hasError('required')">
+                Phone number is required
+              </mat-error>
+              <mat-error *ngIf="customerForm.get('phone')?.hasError('pattern')">
+                Please enter a valid Indian mobile number
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Alternate Phone -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> Alternate Phone </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input
+                matInput
+                formControlName="alternate_phone"
+                placeholder="Enter alternate phone number"
+              />
+              <mat-error *ngIf="customerForm.get('alternate_phone')?.hasError('pattern')">
+                Please enter a valid Indian mobile number
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Website -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> Website </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="website" placeholder="Enter website URL" />
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Information -->
+      <div>
+        <h3 class="text-lg font-medium text-white mb-4">Address Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Address -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-200 mb-2"> Address * </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <textarea
+                matInput
+                formControlName="address"
+                placeholder="Enter complete address"
+                rows="3"
+              >
+              </textarea>
+              <mat-error *ngIf="customerForm.get('address')?.hasError('required')">
+                Address is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- City -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> City * </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="city" placeholder="Enter city" />
+              <mat-error *ngIf="customerForm.get('city')?.hasError('required')">
+                City is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- State -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> State * </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="state" placeholder="Enter state" />
+              <mat-error *ngIf="customerForm.get('state')?.hasError('required')">
+                State is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Country -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> Country * </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="country" placeholder="Enter country" />
+              <mat-error *ngIf="customerForm.get('country')?.hasError('required')">
+                Country is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- PIN Code -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> PIN Code * </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="pin_code" placeholder="Enter PIN code" />
+              <mat-error *ngIf="customerForm.get('pin_code')?.hasError('required')">
+                PIN code is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Information -->
+      <div>
+        <h3 class="text-lg font-medium text-white mb-4">Business Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- GST Number -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> GST Number </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="gst_number" placeholder="Enter GST number" />
+            </mat-form-field>
+          </div>
+
+          <!-- PAN Number -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2"> PAN Number </label>
+            <mat-form-field class="w-full" appearance="outline">
+              <input matInput formControlName="pan_number" placeholder="Enter PAN number" />
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end space-x-3 p-6 border-t border-blue-900/30">
+      <button type="button" mat-stroked-button (click)="onClose()">Cancel</button>
+      <button
+        type="submit"
+        mat-raised-button
+        color="primary"
+        [disabled]="customerForm.invalid || isSaving"
+      >
+        <mat-icon *ngIf="isSaving" class="animate-spin mr-1">refresh</mat-icon>
+        {{ customer ? 'Update Customer' : 'Create Customer' }}
+      </button>
+    </div>
+  </form>
+</div>

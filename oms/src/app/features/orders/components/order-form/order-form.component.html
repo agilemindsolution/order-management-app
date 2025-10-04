@@ -1,0 +1,170 @@
+<div class="bg-gray-900 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+  <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+    <!-- Header -->
+    <div class="flex justify-between items-center p-6 border-b border-blue-900/30">
+      <h2 class="text-xl font-semibold text-white">
+        {{ order ? 'Edit Order' : 'Add New Order' }}
+      </h2>
+      <button type="button" (click)="onClose()" class="text-gray-400 hover:text-white">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Form Content -->
+    <div class="p-6 space-y-6">
+      <!-- Client Selection -->
+      <div>
+        <label class="block text-sm font-medium text-gray-200 mb-2"> Select Client * </label>
+        <mat-select formControlName="client_id" class="w-full">
+          <mat-option *ngFor="let customer of customers" [value]="customer.id">
+            {{ customer.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="orderForm.get('client_id')?.invalid && orderForm.get('client_id')?.touched"
+        >
+          Client is required
+        </mat-error>
+      </div>
+
+      <!-- Date Fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-200 mb-2"> Order Date * </label>
+          <mat-form-field class="w-full">
+            <input matInput type="date" formControlName="order_date" />
+          </mat-form-field>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-200 mb-2"> Expected Delivery </label>
+          <mat-form-field class="w-full">
+            <input matInput type="date" formControlName="expected_delivery_date" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Status Fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-200 mb-2"> Shipping Status </label>
+          <mat-select formControlName="shipping_status" class="w-full">
+            <mat-option value="pending">Pending</mat-option>
+            <mat-option value="shipped">Shipped</mat-option>
+            <mat-option value="delivered">Delivered</mat-option>
+            <mat-option value="cancelled">Cancelled</mat-option>
+          </mat-select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-200 mb-2"> Payment Status </label>
+          <mat-select formControlName="payment_status" class="w-full">
+            <mat-option value="pending">Pending</mat-option>
+            <mat-option value="paid">Paid</mat-option>
+            <mat-option value="failed">Failed</mat-option>
+            <mat-option value="refunded">Refunded</mat-option>
+          </mat-select>
+        </div>
+      </div>
+
+      <!-- Products Section -->
+      <div>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-white">Products</h3>
+          <button type="button" mat-raised-button color="primary" (click)="addItem()">
+            <mat-icon>add</mat-icon>
+            Add Product
+          </button>
+        </div>
+
+        <div formArrayName="items" class="space-y-4">
+          <div
+            *ngFor="let item of items.controls; let i = index"
+            [formGroupName]="i"
+            class="p-4 bg-gray-800/50 rounded-lg border border-blue-900/20"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+              <!-- Product Selection -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-200 mb-2">Product</label>
+                <mat-select
+                  formControlName="product_id"
+                  (selectionChange)="onProductSelect(i, $event.value)"
+                  class="w-full"
+                >
+                  <mat-option *ngFor="let product of products" [value]="product.product_id">
+                    {{ product.product_name }}
+                  </mat-option>
+                </mat-select>
+              </div>
+
+              <!-- Quantity -->
+              <div>
+                <label class="block text-sm font-medium text-gray-200 mb-2">Qty</label>
+                <mat-form-field class="w-full">
+                  <input matInput type="number" formControlName="quantity" min="1" />
+                </mat-form-field>
+              </div>
+
+              <!-- Price -->
+              <div>
+                <label class="block text-sm font-medium text-gray-200 mb-2">Price</label>
+                <mat-form-field class="w-full">
+                  <input matInput type="number" formControlName="price" min="0" step="0.01" />
+                </mat-form-field>
+              </div>
+
+              <!-- Discount -->
+              <div>
+                <label class="block text-sm font-medium text-gray-200 mb-2">Discount</label>
+                <mat-form-field class="w-full">
+                  <input matInput type="number" formControlName="discount" min="0" step="0.01" />
+                </mat-form-field>
+              </div>
+
+              <!-- Total & Remove -->
+              <div class="flex items-center space-x-2">
+                <div class="text-white font-semibold">
+                  ₹{{ item.get('total')?.value | number : '1.2-2' }}
+                </div>
+                <button
+                  type="button"
+                  mat-icon-button
+                  color="warn"
+                  (click)="removeItem(i)"
+                  [disabled]="items.length === 1"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Amount -->
+        <div class="mt-4 p-4 bg-gray-800/30 rounded-lg border border-blue-900/30">
+          <div class="flex justify-between items-center">
+            <span class="text-lg font-medium text-gray-200">Total Amount:</span>
+            <span class="text-2xl font-bold text-blue-400"
+              >₹{{ getTotalAmount() | number : '1.2-2' }}</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end space-x-3 p-6 border-t border-blue-900/30">
+      <button type="button" mat-stroked-button (click)="onClose()">Cancel</button>
+      <button
+        type="submit"
+        mat-raised-button
+        color="primary"
+        [disabled]="orderForm.invalid || isSaving"
+      >
+        <mat-icon *ngIf="isSaving" class="animate-spin">refresh</mat-icon>
+        {{ order ? 'Update Order' : 'Create Order' }}
+      </button>
+    </div>
+  </form>
+</div>

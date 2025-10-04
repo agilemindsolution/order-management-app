@@ -8,8 +8,10 @@ const clientRoutes_1 = __importDefault(require("./clientRoutes"));
 const productRoutes_1 = __importDefault(require("./productRoutes"));
 const orderRoutes_1 = __importDefault(require("./orderRoutes"));
 const factoryRoutes_1 = __importDefault(require("./factoryRoutes"));
+const dashboardRoutes_1 = __importDefault(require("./dashboardRoutes"));
 function registerRoutes(app) {
     app.use('/api', factoryRoutes_1.default);
+    app.use('/api/dashboard', dashboardRoutes_1.default);
     app.use('/api/clients', clientRoutes_1.default);
     app.use('/api/products', productRoutes_1.default);
     app.use('/api/orders', orderRoutes_1.default);

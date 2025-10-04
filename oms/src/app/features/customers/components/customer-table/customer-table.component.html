@@ -1,0 +1,102 @@
+<div class="w-full">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+    <mat-spinner diameter="40" color="primary"></mat-spinner>
+    <span class="ml-3 text-gray-400">Loading customers...</span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !customers.length" class="text-center py-12">
+    <mat-icon class="text-6xl text-gray-600 mb-4">people</mat-icon>
+    <p class="text-gray-400 text-lg">No customers found</p>
+  </div>
+
+  <!-- Desktop Table -->
+  <div *ngIf="!isLoading && customers.length > 0" class="hidden md:block">
+    <table class="oms-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Contact Person</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>City</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of customers; let i = index">
+          <td class="text-gray-400">{{ i + 1 }}</td>
+          <td class="font-medium text-gray-200">{{ customer.name }}</td>
+          <td class="text-gray-300">{{ customer.contact_person }}</td>
+          <td class="text-blue-400">{{ customer.email }}</td>
+          <td class="font-mono text-gray-300">{{ customer.phone }}</td>
+          <td class="text-gray-300">{{ customer.city }}</td>
+          <td>
+            <div class="flex items-center space-x-2">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="onView(customer)"
+                matTooltip="View Details"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="accent"
+                (click)="onEdit(customer)"
+                matTooltip="Edit Customer"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="onDelete(customer.id)"
+                matTooltip="Delete Customer"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div *ngIf="!isLoading && customers.length > 0" class="md:hidden space-y-4">
+    <div
+      *ngFor="let customer of customers"
+      class="modern-card p-4 bg-gray-800/50 border border-blue-900/20 rounded-lg"
+    >
+      <div class="flex justify-between items-start mb-3">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-200">{{ customer.name }}</h3>
+          <p class="text-gray-400">Contact Person: {{ customer.contact_person }}</p>
+          <p class="text-blue-400 text-sm">{{ customer.email }}</p>
+        </div>
+
+        <div class="flex space-x-1">
+          <button mat-icon-button size="small" color="primary" (click)="onView(customer)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button size="small" color="accent" (click)="onEdit(customer)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button size="small" color="warn" (click)="onDelete(customer.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="text-sm text-gray-300 space-y-1">
+        <p><strong>Phone:</strong> {{ customer.phone }}</p>
+        <p><strong>City:</strong> {{ customer.city }}</p>
+        <p><strong>Address:</strong> {{ customer.address }}</p>
+      </div>
+    </div>
+  </div>
+</div>

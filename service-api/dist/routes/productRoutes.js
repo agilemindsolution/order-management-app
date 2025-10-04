@@ -7,7 +7,7 @@ const router = (0, express_1.Router)();
 router.get('/', productController_1.getProducts);
 router.get('/:id', productController_1.getSpecificProduct);
 router.post('/', multerconfig_1.upload.array('images', 10), productController_1.createProduct);
-router.put('/:id', productController_1.updateProduct);
+router.put('/:id', multerconfig_1.upload.array('images', 10), productController_1.updateProduct);
 router.delete('/:id', productController_1.deleteProduct);
 router.delete('/:id/images/:imageId', productController_1.deleteProductImage);
 exports.default = router;

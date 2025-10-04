@@ -124,24 +124,24 @@
 //   "exclude": ["node_modules"]
 // }
 
-
 {
   "compilerOptions": {
-    "target": "es6",                 // Use ES2022 for more modern features
-    "module": "commonjs",               // Proper ESM module resolution
+    "target": "es6", // Use ES2022 for more modern features
+    "module": "commonjs", // Proper ESM module resolution
     // "rootDir": "./",                    // Include the entire 'service-api' directory
     "outDir": "./dist",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "strict": true,
     "resolveJsonModule": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true, // Important for ESM interop
-    "noEmitOnError": true,               // Prevents partial builds on errors
+    "noEmitOnError": true // Prevents partial builds on errors
   },
-  "include": ["src"],
+  "include": ["src/**/*", "server.ts"],
   "exclude": ["node_modules", "dist"]
 }

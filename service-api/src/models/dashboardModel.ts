@@ -1,19 +1,21 @@
-import pool from '../config/db';
+import pool from "../config/db";
 
 // Total counts and revenue
 export const getDashboardCounts = async () => {
+  console.log("next here:");
   const [orders, clients, products, revenue] = await Promise.all([
-    pool.query('SELECT COUNT(*) FROM orders'),
-    pool.query('SELECT COUNT(*) FROM client_master'),
-    pool.query('SELECT COUNT(*) FROM product_master'),
-    pool.query('SELECT COALESCE(SUM(total_amount), 0) FROM orders')
+    pool.query("SELECT COUNT(*) FROM orders"),
+    pool.query("SELECT COUNT(*) FROM client_master"),
+    pool.query("SELECT COUNT(*) FROM product_master"),
+    pool.query("SELECT COALESCE(SUM(total_amount), 0) FROM orders"),
   ]);
+  console.log("orders:", orders);
 
   return {
     orderCount: parseInt(orders.rows[0].count, 10),
     clientCount: parseInt(clients.rows[0].count, 10),
     productCount: parseInt(products.rows[0].count, 10),
-    totalRevenue: parseFloat(revenue.rows[0].coalesce)
+    totalRevenue: parseFloat(revenue.rows[0].coalesce),
   };
 };
 
@@ -23,12 +25,12 @@ export const getOrderStatusCounts = async () => {
     SELECT shipping_status, COUNT(*) as count
     FROM orders
     GROUP BY shipping_status;`);
-    
+
   const statusCounts: Record<string, number> = {
     pending: 0,
     shipped: 0,
     delivered: 0,
-    cancelled: 0
+    cancelled: 0,
   };
 
   result.rows.forEach((row: any) => {

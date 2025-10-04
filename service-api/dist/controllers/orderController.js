@@ -8,30 +8,56 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addOrder = exports.getOrders = void 0;
-const db_1 = __importDefault(require("../config/db"));
-const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.deleteOrderHandler = exports.updateOrderHandler = exports.getOrderByIdHandler = exports.getOrdersHandler = exports.createOrderHandler = void 0;
+const orderModel_1 = require("../models/orderModel");
+const createOrderHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield db_1.default.query('SELECT * FROM orders');
-        res.json(result.rows);
+        const order = yield (0, orderModel_1.createOrder)(req.body);
+        res.status(201).json(order);
     }
-    catch (err) {
-        res.status(500).json({ error: err.message });
+    catch (error) {
+        next(error);
     }
 });
-exports.getOrders = getOrders;
-const addOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createOrderHandler = createOrderHandler;
+const getOrdersHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { client_id, product_id, quantity } = req.body;
-        const result = yield db_1.default.query('INSERT INTO orders (client_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *', [client_id, product_id, quantity]);
-        res.status(201).json(result.rows[0]);
+        const orders = yield (0, orderModel_1.getOrders)();
+        res.status(200).json(orders);
     }
-    catch (err) {
-        res.status(500).json({ error: err.message });
+    catch (error) {
+        next(error);
     }
 });
-exports.addOrder = addOrder;
+exports.getOrdersHandler = getOrdersHandler;
+const getOrderByIdHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const order = yield (0, orderModel_1.getOrderById)(req.params.id);
+        res.status(200).json(order);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getOrderByIdHandler = getOrderByIdHandler;
+const updateOrderHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const updatedOrder = yield (0, orderModel_1.updateOrderById)(req.params.id, req.body);
+        res.status(200).json(updatedOrder);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateOrderHandler = updateOrderHandler;
+const deleteOrderHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield (0, orderModel_1.deleteOrderById)(req.params.id);
+        res.status(204).end();
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.deleteOrderHandler = deleteOrderHandler;

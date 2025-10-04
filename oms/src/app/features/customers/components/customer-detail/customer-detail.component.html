@@ -1,0 +1,127 @@
+<div class="bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+  <!-- Header -->
+  <div class="flex justify-between items-center p-6 border-b border-blue-900/30">
+    <h2 class="text-xl font-semibold text-white flex items-center">
+      <mat-icon class="mr-2 text-blue-400">person</mat-icon>
+      Customer Details
+    </h2>
+    <button mat-icon-button (click)="onClose()" class="text-gray-400 hover:text-white">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="p-6">
+    <!-- Decorative elements -->
+    <div
+      class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-indigo-600"
+    ></div>
+
+    <!-- Customer Name -->
+    <div class="mb-6 text-center">
+      <h3 class="text-2xl font-bold text-white mb-2">{{ customer.name }}</h3>
+      <p class="text-gray-400">Customer ID: {{ customer.id }}</p>
+    </div>
+
+    <!-- Customer Details Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Contact Person -->
+      <div class="flex items-start space-x-3">
+        <div class="p-2 bg-blue-600/20 rounded-lg">
+          <mat-icon class="text-blue-400">account_circle</mat-icon>
+        </div>
+        <div>
+          <span class="text-sm font-medium text-gray-400">Contact Person</span>
+          <p class="text-white">{{ customer.contact_person }}</p>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="flex items-start space-x-3">
+        <div class="p-2 bg-green-600/20 rounded-lg">
+          <mat-icon class="text-green-400">email</mat-icon>
+        </div>
+        <div>
+          <span class="text-sm font-medium text-gray-400">Email</span>
+          <p class="text-blue-400">{{ customer.email }}</p>
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="flex items-start space-x-3">
+        <div class="p-2 bg-yellow-600/20 rounded-lg">
+          <mat-icon class="text-yellow-400">phone</mat-icon>
+        </div>
+        <div>
+          <span class="text-sm font-medium text-gray-400">Phone Number</span>
+          <p class="text-white font-mono">{{ customer.phone }}</p>
+        </div>
+      </div>
+
+      <!-- Alternate Phone -->
+      @if (customer.alternate_phone) {
+      <div class="flex items-start space-x-3">
+        <div class="p-2 bg-purple-600/20 rounded-lg">
+          <mat-icon class="text-purple-400">phone_android</mat-icon>
+        </div>
+        <div>
+          <span class="text-sm font-medium text-gray-400">Alternate Phone</span>
+          <p class="text-white font-mono">{{ customer.alternate_phone }}</p>
+        </div>
+      </div>
+      }
+
+      <!-- Address -->
+      <div class="md:col-span-2 flex items-start space-x-3">
+        <div class="p-2 bg-red-600/20 rounded-lg">
+          <mat-icon class="text-red-400">location_on</mat-icon>
+        </div>
+        <div class="flex-1">
+          <span class="text-sm font-medium text-gray-400">Address</span>
+          <p class="text-white">{{ customer.address }}</p>
+          <p class="text-gray-300 text-sm">
+            {{ customer.city }}, {{ customer.state }} {{ customer.pin_code }}
+          </p>
+          @if (customer.country) {
+          <p class="text-gray-300 text-sm">
+            {{ customer.country }}
+          </p>
+          }
+        </div>
+      </div>
+
+      <!-- GST Number -->
+      @if (customer.gst_number) {
+      <div>
+        <span class="text-sm font-medium text-gray-400">GST Number</span>
+        <p class="text-white font-mono">{{ customer.gst_number }}</p>
+      </div>
+      }
+
+      <!-- PAN Number -->
+      @if (customer.pan_number) {
+      <div>
+        <span class="text-sm font-medium text-gray-400">PAN Number</span>
+        <p class="text-white font-mono">{{ customer.pan_number }}</p>
+      </div>
+      }
+
+      <!-- Website -->
+      @if (customer.website) {
+      <div class="md:col-span-2">
+        <span class="text-sm font-medium text-gray-400">Website</span>
+        <p class="text-blue-400">{{ customer.website }}</p>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="flex justify-end space-x-3 p-6 border-t border-blue-900/30">
+    <button mat-stroked-button (click)="onClose()">Close</button>
+    <button mat-raised-button color="primary" (click)="onEdit()">
+      <mat-icon class="mr-1">edit</mat-icon>
+      Edit Customer
+    </button>
+  </div>
+</div>

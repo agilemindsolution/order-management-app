@@ -84,13 +84,24 @@ const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.createProduct = createProduct;
 const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
-        const product = yield (0, productModel_1.updateProductById)(req.params.id, req.body);
-        if ((_a = req.body.images) === null || _a === void 0 ? void 0 : _a.length) {
-            yield (0, productModel_1.addProductImages)(req.body.images);
+        const productId = req.params.id;
+        const updateData = req.body;
+        const updatedProduct = yield (0, productModel_1.updateProductById)(productId, updateData);
+        if (req.files && req.files.length > 0) {
+            const images = req.files.map((file, idx) => {
+                const isPrimary = Array.isArray(req.body.is_primary)
+                    ? req.body.is_primary[idx] === 'true'
+                    : req.body.is_primary === 'true';
+                return {
+                    product_id: productId,
+                    image_url: `/uploads/products/${file.filename}`,
+                    is_primary: isPrimary
+                };
+            });
+            yield (0, productModel_1.addProductImages)(images);
         }
-        res.json(product);
+        res.status(200).json(updatedProduct);
     }
     catch (err) {
         next(err);
@@ -99,7 +110,13 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 exports.updateProduct = updateProduct;
 const deleteProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield (0, productModel_1.deleteProductById)(req.params.id);
+        const productId = req.params.id;
+        const images = yield (0, productModel_1.getProductImagesByProductId)(productId);
+        for (const image of images) {
+            req.params.image = image;
+            yield (0, exports.deleteProductImage)(req, res, next);
+        }
+        yield (0, productModel_1.deleteProductById)(productId);
         res.status(204).end();
     }
     catch (err) {
@@ -109,7 +126,14 @@ const deleteProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 exports.deleteProduct = deleteProduct;
 const deleteProductImage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield (0, productModel_1.deleteProductImageById)(req.params.imageId);
+        const image = req.params.image;
+        const imageId = image.image_id;
+        const filePath = path_1.default.join(__dirname, '../../uploads', image.image_url.replace('/uploads/', ''));
+        fs_1.default.unlink(filePath, (err) => {
+            if (err)
+                console.error(`Failed to delete image file: ${filePath}`, err);
+        });
+        yield (0, productModel_1.deleteProductImageById)(imageId);
         res.status(204).end();
     }
     catch (err) {
