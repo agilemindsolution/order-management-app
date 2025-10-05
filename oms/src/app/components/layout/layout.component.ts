@@ -31,14 +31,13 @@ interface MenuItem {
 })
 export class Layout implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-
+  
   sidebarOpen = false;
   isMobile = false;
   currentPath = '';
   showNotifications = false;
   showUserMenu = false;
 
-  // Mock user data - replace with your auth service
   user = {
     name: 'Admin User',
     email: 'admin@oms.com',
@@ -105,7 +104,7 @@ export class Layout implements OnInit, OnDestroy {
   private checkMobile() {
     this.isMobile = window.innerWidth < 768;
     if (!this.isMobile) {
-      this.sidebarOpen = true; // Desktop sidebar always open by default
+      this.sidebarOpen = true;
     }
   }
 
@@ -125,7 +124,6 @@ export class Layout implements OnInit, OnDestroy {
 
   handleLogout() {
     this.showUserMenu = false;
-    // Add your logout logic here
     this.router.navigate(['/login']);
   }
 

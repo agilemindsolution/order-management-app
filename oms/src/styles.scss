@@ -1,10 +1,47 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// Angular Material theming
 @use '@angular/material' as mat;
 
+// @import '../tailwind.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Custom component styles that can't be achieved with Tailwind utilities
+@layer components {
+  .status-badge {
+    @apply px-2 py-1 text-xs font-medium rounded-full;
+    
+    &.status-pending {
+      @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+    }
+    
+    &.status-shipped {
+      @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+    }
+    
+    &.status-delivered {
+      @apply bg-green-500/20 text-green-400 border border-green-500/30;
+    }
+    
+    &.status-cancelled {
+      @apply bg-red-500/20 text-red-400 border border-red-500/30;
+    }
+  }
+
+  .bg-grid-white\/\[0\.02\] {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+}
+
+
+// Font imports
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+// Angular Material theme configuration
 html {
   @include mat.theme(
     (
@@ -18,66 +55,17 @@ html {
   );
 }
 
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
+// Global styles
+* {
+  font-family: 'Inter', sans-serif;
 }
 
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
-// @use '@angular/material' as mat;
-
-html {
-  @include mat.theme(
-    (
-      color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
-      ),
-      typography: Roboto,
-      density: 0,
-    )
-  );
-}
-
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-}
-/* You can add global styles to this file, and also import other style files */
-
-html,
-body {
+html, body {
   height: 100%;
-}
-body {
   margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  background-color: #030712; // bg-gray-950 for dark theme
 }

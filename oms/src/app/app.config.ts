@@ -16,13 +16,13 @@ const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./pages/auth/login/login.component').then((m: any) => m.LoginComponent),
-    // canActivate: [publicGuard],
+    canActivate: [publicGuard],
   },
   {
     path: 'register',
     loadComponent: () =>
       import('./pages/auth/register/register.component').then((m: any) => m.RegisterComponent),
-    // canActivate: [publicGuard],
+    canActivate: [publicGuard],
   },
   {
     path: 'register-admin',
@@ -30,7 +30,7 @@ const routes: Routes = [
       import('./pages/auth/register-admin/register-admin.component').then(
         (m: any) => m.RegisterAdminComponent
       ),
-    // canActivate: [publicGuard],
+    canActivate: [publicGuard],
   },
   {
     path: 'forgot-password',
@@ -38,13 +38,13 @@ const routes: Routes = [
       import('./pages/auth/forgot-password/forgot-password.component').then(
         (m: any) => m.ForgotPasswordComponent
       ),
-    // canActivate: [publicGuard],
+    canActivate: [publicGuard],
   },
   {
     path: 'dashboard',
     loadChildren: () =>
       import('./features/dashboard/dashboard.module').then((m: any) => m.DashboardModule),
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
   },
 ];
 

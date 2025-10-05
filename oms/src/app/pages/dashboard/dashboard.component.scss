@@ -1,0 +1,23 @@
+// dashboard.component.scss
+
+// Only custom component-specific styles that cannot be done with Tailwind utilities
+
+// Example: custom chart container sizing or overrides
+.chart-container {
+  height: 16rem;  // e.g.,  h-64
+  width: 100%;
+}
+
+// Example: spacing override for a specific element
+.recent-orders-wrapper {
+  margin-top: 2rem;  // Tailwind: mt-8
+}
+
+// If you have any keyframe animations or deeply nested selectors
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animated-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}

@@ -75,14 +75,15 @@
   </div>
 
   <!-- Customer Form Modal -->
-  <div *ngIf="showForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+   @if (showForm) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <app-customer-form [customer]="editingCustomer" (close)="handleCloseForm()">
     </app-customer-form>
   </div>
-
+   }
   <!-- Customer Detail Modal -->
+  @if (viewingCustomer) {
   <div
-    *ngIf="viewingCustomer"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
   >
     <app-customer-detail
@@ -92,4 +93,5 @@
     >
     </app-customer-detail>
   </div>
+}
 </div>

@@ -1,22 +1,21 @@
-<!-- components/layout/layout.component.html -->
 <div class="min-h-screen bg-gray-950 flex relative">
   <!-- Grid Background -->
   <div class="fixed inset-0 bg-grid-white/[0.02] pointer-events-none"></div>
-
+  
   <!-- Sidebar -->
-  <aside class="sidebar" [class.sidebar-open]="sidebarOpen" [class.sidebar-closed]="!sidebarOpen">
+  <aside 
+    class="sidebar"
+    [class.sidebar-open]="sidebarOpen"
+    [class.sidebar-closed]="!sidebarOpen"
+  >
     <!-- Logo -->
     <div class="p-6 border-b border-blue-900/30">
       <div class="flex items-center space-x-3">
-        <div
-          class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
-        >
+        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
           <mat-icon class="text-white text-xl">store</mat-icon>
         </div>
         <div class="sidebar-text">
-          <h2
-            class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
-          >
+          <h2 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             OMS
           </h2>
           <p class="text-sm text-gray-400">Order Management</p>
@@ -28,7 +27,7 @@
     <nav class="flex-1 px-4 py-6">
       <ul class="space-y-2">
         <li *ngFor="let item of menuItems">
-          <a
+          <a 
             [routerLink]="item.path"
             class="nav-item"
             [class.nav-item-active]="isActiveRoute(item.path)"
@@ -36,8 +35,8 @@
           >
             <mat-icon>{{ item.icon }}</mat-icon>
             <span class="sidebar-text">{{ item.title }}</span>
-            <span
-              *ngIf="item.badge"
+            <span 
+              *ngIf="item.badge" 
               class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full sidebar-text"
             >
               {{ item.badge }}
@@ -57,7 +56,7 @@
   </aside>
 
   <!-- Sidebar Overlay (Mobile) -->
-  <div
+  <div 
     *ngIf="isMobile && sidebarOpen"
     class="fixed inset-0 bg-black/50 z-30 lg:hidden"
     (click)="toggleSidebar()"
@@ -71,7 +70,7 @@
         <!-- Left Section -->
         <div class="flex items-center space-x-4">
           <!-- Mobile Menu Button -->
-          <button
+          <button 
             mat-icon-button
             class="lg:hidden text-gray-300 hover:text-white"
             (click)="toggleSidebar()"
@@ -80,7 +79,7 @@
           </button>
 
           <!-- Desktop Sidebar Toggle -->
-          <button
+          <button 
             mat-icon-button
             class="hidden lg:block text-gray-300 hover:text-white"
             (click)="toggleSidebar()"
@@ -105,7 +104,7 @@
         <div class="flex items-center space-x-4">
           <!-- Notifications -->
           <div class="relative">
-            <button
+            <button 
               mat-icon-button
               [matBadge]="3"
               matBadgeColor="warn"
@@ -117,7 +116,7 @@
             </button>
 
             <!-- Notifications Dropdown -->
-            <div
+            <div 
               *ngIf="showNotifications"
               class="absolute right-0 top-12 w-80 bg-gray-800 rounded-lg shadow-2xl border border-blue-900/30 z-50"
             >
@@ -143,20 +142,18 @@
 
           <!-- User Menu -->
           <div class="relative">
-            <button
+            <button 
               mat-icon-button
               class="flex items-center space-x-2 text-gray-300 hover:text-white"
               (click)="toggleUserMenu()"
             >
-              <div
-                class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center"
-              >
+              <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                 <mat-icon class="text-white text-sm">person</mat-icon>
               </div>
             </button>
 
             <!-- User Dropdown -->
-            <div
+            <div 
               *ngIf="showUserMenu"
               class="absolute right-0 top-12 w-64 bg-gray-800 rounded-lg shadow-2xl border border-blue-900/30 z-50"
             >
@@ -165,21 +162,15 @@
                 <p class="text-sm text-gray-400">{{ user.email }}</p>
               </div>
               <div class="py-2">
-                <a
-                  href="#"
-                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700/50 flex items-center space-x-2"
-                >
+                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700/50 flex items-center space-x-2">
                   <mat-icon class="text-lg">person</mat-icon>
                   <span>Profile</span>
                 </a>
-                <a
-                  href="#"
-                  class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700/50 flex items-center space-x-2"
-                >
+                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700/50 flex items-center space-x-2">
                   <mat-icon class="text-lg">settings</mat-icon>
                   <span>Settings</span>
                 </a>
-                <button
+                <button 
                   (click)="handleLogout()"
                   class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700/50 flex items-center space-x-2"
                 >

@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef  } from '@angular/core';
 import { DashboardService } from '../../features/dashboard/services/dashboard.service';
-import { CommonUtilsService } from '../../shared/utils/common.utils';
+// Remove CommonUtilsService since it doesn't exist
 import { Subject, takeUntil } from 'rxjs';
 import { DecimalPipe, CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +8,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-// import { NgModule } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
@@ -26,22 +25,9 @@ export interface OrderStatusSummary {
   cancelled: number;
 }
 
-// @NgModule({
-//   imports: [
-//     DecimalPipe,
-//     CommonModule,
-//     MatIconModule,
-//     MatCardModule,
-//     MatProgressSpinnerModule,
-//     FormsModule,
-//     NgChartsModule, // For Chart.js
-//     // ... other imports
-//   ],
-//   // ... declarations
-// })
-
 @Component({
   selector: 'app-dashboard',
+  standalone: true, // ✅ Add this
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   imports: [
@@ -100,7 +86,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false, // We'll use custom legend
+        display: false,
       },
       tooltip: {
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -110,10 +96,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         borderWidth: 1,
       },
     },
-    cutout: '60%', // Makes it a doughnut instead of pie
+    cutout: '60%',
   };
 
-  constructor(private dashboardService: DashboardService, private utils: CommonUtilsService) {}
+  constructor(private dashboardService: DashboardService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadDashboardData();
@@ -126,27 +112,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadDashboardData() {
     this.isLoading = true;
-
+    this.cdr.detectChanges();
     this.dashboardService
       .fetchDashboardData()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
+          console.log('Dashboard data received:', data);
           this.metrics = data.metrics;
           this.status = data.status;
           this.recentOrders = data.recentOrders;
           this.updateChartData();
+          console.log("here loading false");
+          
           this.isLoading = false;
+          this.cdr.detectChanges();
         },
         error: (error: any) => {
           console.error('Failed to load dashboard data:', error);
           this.isLoading = false;
+          this.cdr.detectChanges();
         },
       });
   }
 
   private updateChartData() {
-    // Update chart data with actual values
     this.doughnutChartData = {
       labels: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
       datasets: [
@@ -167,12 +157,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateString: string): string {
-    return this.utils.formatDate(dateString);
+    return new Date(dateString).toLocaleDateString();
   }
 
   getStatusClass(status: string): string {
+    let status1 = status || ''
     const baseClass = 'status-badge';
-    switch (status.toLowerCase()) {
+    switch (status1.toLowerCase()) {
       case 'pending':
         return `${baseClass} status-pending`;
       case 'shipped':
